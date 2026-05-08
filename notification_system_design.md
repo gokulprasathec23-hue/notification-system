@@ -1,18 +1,18 @@
 # Stage 1
-## Notification System Overview
+# Notification System Overview
 This system allows users to receive and manage notifications.
-## Core Actions
+# Core Actions
 - Create notification
 - Fetch notifications
 - Mark notification as read
 - Delete notification
 - Real-time notifications
-## REST API Endpoints
-### GET /api/notifications
-### POST /api/notifications
-### PATCH /api/notifications/{id}/read
-### DELETE /api/notifications/{id}
-## Notification JSON Schema
+# REST API Endpoints
+# GET /api/notifications
+# POST /api/notifications
+# PATCH /api/notifications/{id}/read
+# DELETE /api/notifications/{id}
+# Notification JSON Schema
 json
 {
   "id": "string",
@@ -63,3 +63,12 @@ SELECT DISTINCT studentID
 FROM notifications
 WHERE notificationType = 'Placement'
 AND createdAt >= NOW() - INTERVAL 7 DAY;
+
+# Stage 4
+# Suggested Solutions
+# 1. Pagination
+Fetch notifications in smaller batches instead of loading all notifications.
+# Performance Improvement
+Reduces database load, Faster API response,Lower memory usage,Reduces repeated database queries ,Faster notification retrieval, Reduces unnecessary database requests,Improves page load speed
+# Tradeoff
+Requires multiple API calls for more data,Additional cache management,Possible stale data issues,Notifications are not loaded immediately
