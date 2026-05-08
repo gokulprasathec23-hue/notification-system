@@ -2,11 +2,11 @@
 # Notification System Overview
 This system allows users to receive and manage notifications.
 # Core Actions
-- Create notification
-- Fetch notifications
-- Mark notification as read
-- Delete notification
-- Real-time notifications
+Create notification
+Fetch notifications
+Mark notification as read
+Delete notification
+Real-time notifications
 # REST API Endpoints
 # GET /api/notifications
 # POST /api/notifications
@@ -72,3 +72,56 @@ Fetch notifications in smaller batches instead of loading all notifications.
 Reduces database load, Faster API response,Lower memory usage,Reduces repeated database queries ,Faster notification retrieval, Reduces unnecessary database requests,Improves page load speed
 # Tradeoff
 Requires multiple API calls for more data,Additional cache management,Possible stale data issues,Notifications are not loaded immediately
+
+# Stage 5
+# Shortcomings of Current Implementation
+ Sequential processing is slow for 50,000 students
+ Email API failure stops reliable delivery
+ No retry mechanism
+ High database load
+ No fault tolerance
+ Poor scalability
+ No asynchronous processing
+# Problem with Email Failure
+If `send_email()` fails midway for 200 students:
+Some students receive notifications
+Some students do not receive notifications
+Data becomes inconsistent
+Manual recovery becomes difficult
+# Recommended Redesign
+Use message queues for asynchronous processing
+Save notification to DB first
+Process email sending separately
+Add retry mechanism for failed emails
+Use worker services for parallel processing
+Use batch processing for scalability
+# Why DB Save and Email Should Not Happen Together
+Saving to DB and sending emails should be separated because:
+Email APIs can fail or become slow
+DB operations should remain reliable
+Failure in email should not rollback notification storage
+Asynchronous processing improves scalability
+# Revised Pseudocode
+function notify_all(student_ids, message):
+
+    for student_id in student_ids:
+
+        save_to_db(student_id, message)
+
+        add_to_queue({
+            "student_id": student_id,
+            "message": message
+        })
+worker_process():
+
+    while queue_not_empty():
+
+        job = get_next_job()
+
+        try:
+            send_email(job.student_id, job.message)
+
+            push_to_app(job.student_id, job.message)
+
+        except:
+            retry_job(job)
