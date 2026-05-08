@@ -41,3 +41,25 @@ POST /api/notifications → insertOne()
 GET /api/notifications → find()
 PATCH /api/notifications/{id}/read → updateOne()
 DELETE /api/notifications/{id} → deleteOne()
+# Stage 3
+# is the query accurate 
+SELECT * FROM notifications
+WHERE studentID = 1042 AND isRead = false
+ORDER BY createdAt ASC;
+
+The query is correct but performs slowly because the notifications table contains millions of records. Without proper indexing, the database performs a full table scan and sorting operation.
+# why this is slow ?
+Beasuce it sort from first to till the required found so that query may be slow.
+# Changes to be done 
+Add a composite index:
+CREATE INDEX idx_student_read_created
+ON notifications(studentID, isRead, createdAt);
+
+# Is Adding Indexes on Every Column Effective?
+Adding indexes on every column is not effective because:
+Incre,ases storage usage,Slows INSERT, UPDATE, DELETE operations Increases index maintenance overhead,Many indexes may never be used Indexes should only be added on frequently filtered, searched, and sorted columns.
+# Query to Find Students Who Got Placement Notifications in Last 7 Days
+SELECT DISTINCT studentID
+FROM notifications
+WHERE notificationType = 'Placement'
+AND createdAt >= NOW() - INTERVAL 7 DAY;
